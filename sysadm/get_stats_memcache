@@ -1,0 +1,10 @@
+#!/usr/bin/expect
+# Tonny@51.com
+
+set ipaddr [lrange $argv 0 0]
+
+spawn telnet $ipaddr 11556
+send "stats\r"
+expect "END\r"
+send "quit\r"
+expect eof

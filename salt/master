@@ -1,0 +1,11 @@
+file_roots:
+  base: 
+    - /srv/salt/base
+  prod:
+    - /srv/salt/prod
+  dev:
+    - /srv/salt/dev
+    - /srv/salt/base
+  qa:
+    - /srv/salt/qa
+    - /srv/salt/base

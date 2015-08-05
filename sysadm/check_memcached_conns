@@ -1,0 +1,102 @@
+#!/bin/sh
+#Author: Tonny@51.com
+#Date:   2009-05-15
+#Purpose:Check Memcached Server curr_connections with nagios NREP plugins
+
+DIR="/opt/nagios/libexec"
+COMMAND="${DIR}/get_stats_memcache"
+INTRANET=`ifconfig | grep -w -A 1 eth1 | grep 'inet addr' | head -1 | awk -F: '{print $2}' | awk '{print $1}'`
+
+# Nagios return codes
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+
+# Plugin parameters value if not define
+WARNING_THRESHOLD=${WARNING_THRESHOLD:="200"}
+CRITICAL_THRESHOLD=${CRITICAL_THRESHOLD:="500"}
+
+# Plugin variable description
+PROGNAME=$(basename $0)
+RELEASE="Version 1.0"
+AUTHOR="(c) 2009-05-15 (TonnyomAThotmail.com)"
+
+
+if [ ! -x $COMMAND ]; then
+        echo "UNKNOWN: expect program not found or not executable"
+        exit $STATE_UNKNOWN
+fi
+
+# Functions plugin usage
+print_release() {
+    echo "$RELEASE $AUTHOR"
+}
+
+print_usage() {
+        echo ""
+        echo "$PROGNAME $RELEASE - Memcached curr_conns with Nagios NRPE Plugins"
+        echo ""
+        echo "Usage: check_memcached_conns.sh -w (default:200) -c (default:500)"
+        echo ""
+        echo "  -w  Warning for memcached curr_conns"
+        echo "  -c  Crical  for memcached curr_conns"
+        echo "  -h  Show this page"
+        echo "  -v  Show Version"
+        echo ""
+    echo "Usage: $PROGNAME --help"
+    echo ""
+}
+
+print_help() {
+        print_usage
+        echo ""
+        echo "This plugin will check memcached curr_conns"
+        echo ""
+        exit 0
+}
+
+# Parse parameters
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -h | --help)
+            print_help
+            exit $STATE_OK
+            ;;
+        -v | --version)
+                print_release
+                exit $STATE_OK
+                ;;
+        -w | --warning)
+                shift
+                WARNING_THRESHOLD=$1
+                ;;
+        -c | --critical)
+               shift
+                CRITICAL_THRESHOLD=$1
+                ;;     
+        *)  echo "Unknown argument: $1"
+            print_usage
+            exit $STATE_UNKNOWN
+            ;;
+        esac
+shift
+done
+
+# Get Memcached curr_conns
+
+CURR_CONNS=$($COMMAND $INTRANET | grep "curr_connections" | awk '{print $3}' | sed 's/[^0-9]//ig')
+
+# Return Nagios code status
+
+        if [ `echo "${CURR_CONNS} >= $WARNING_THRESHOLD"| bc` -eq 1 ] && [ `echo "${CURR_CONNS} < $CRITICAL_THRESHOLD"| bc` -eq 1 ]; then
+                echo "WARNING: memcached curr_conns=${CURR_CONNS} | ${CURR_CONNS};$WARNING_THRESHOLD"
+                exit $STATE_WARNING
+        elif [ `echo "${CURR_CONNS} >= $CRITICAL_THRESHOLD"| bc` -eq 1 ]; then
+                echo "CRITICAL: memcached curr_conns=${CURR_CONNS} | ${CURR_CONNS};$CRITICAL_THRESHOLD"
+                exit $STATE_CRITICAL
+        else
+                echo "OK : memcached curr_conns=${CURR_CONNS} | ${CURR_CONNS};$WARNING_THRESHOLD;$CRITICAL_THRESHOLD"
+                exit $STATE_OK
+        fi
+

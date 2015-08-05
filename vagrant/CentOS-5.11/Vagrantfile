@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config| 
+  config.vm.provision "shell", inline: "/vagrant/init.sh" 
+  config.vm.provision "shell", inline: "/vagrant/add_keys.sh" 
+
+  config.vm.define "db-master" do |m| 
+  m.vm.box = "chef/centos-5.11" 
+  m.vm.host_name = "db-master" 
+  m.vm.network "private_network", ip: "10.10.0.8" 
+  end 
+  config.vm.define "db-slave" do |s| 
+  s.vm.box = "chef/centos-5.11" 
+  s.vm.host_name = "db-slave" 
+  s.vm.network "private_network", ip: "10.10.0.9" 
+  end 
+  config.vm.define "dboa" do |dboa|
+  dboa.vm.box = "chef/centos-5.11"
+  dboa.vm.host_name = "dboa"
+  dboa.vm.network "private_network", ip: "10.10.0.10"
+  end
+
+  config.vm.provider "virtualbox" do |vb| 
+    vb.memory = "512" 
+    vb.cpus = "1" 
+  end 
+end 
