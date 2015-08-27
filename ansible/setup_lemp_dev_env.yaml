@@ -1,0 +1,64 @@
+---
+- hosts: web
+
+  tasks:
+  - name: cp init scripts to remote
+    copy: src=/etc/ansible/sys_init.sh dest=/tmp/sys_init.sh mode="u=rwx,g=rx,o=rx"
+  - name: execute init scripts
+    shell: sh /tmp/sys_init.sh
+  - name: source bashrc
+    shell: . ~/.bashrc
+  - name: export env
+    shell: env > /tmp/env.txt
+
+  - name: get nginx official repo
+    copy: src=/etc/ansible/nginx.repo dest=/etc/yum.repos.d/nginx.repo owner=root group=root
+  - name: install nginx
+    yum: name=nginx enablerepo=nginx state=present
+  - name: restart nginx
+    service: name=nginx state=restarted
+
+  - name: get mysql officical repo
+    copy: src=/etc/ansible/mysql-community.repo dest=/etc/yum.repos.d/mysql-community.repo owner=root group=root
+  - name: install mysql
+    yum: name={{ item }} enablerepo=mysql56-community state=present
+    with_items:
+      - mysql-community-server
+      - mysql-devel
+  - name: restart mysqld
+    service: name=mysqld state=restarted
+
+  - name: get webtatic repo rpm
+    get_url: dest=/tmp/latest.rpm  url=https://mirror.webtatic.com/yum/el6/latest.rpm
+  - name: install webtatic repo
+    yum: name=/tmp/latest.rpm state=present
+  - name: install php56
+    yum: name={{ item }} update_cache=no state=present
+    with_items:
+      - php56w
+      - php56w-cli
+      - php56w-common
+      - php56w-fpm
+      - php56w-gd
+      - php56w-mbstring
+      - php56w-mcrypt
+      - php56w-pdo
+      - php56w-mysqlnd
+      - php56w-pgsql
+      - php56w-opcache
+  - name: restart php56
+    service: name=php-fpm state=restarted
+
+  - name: stop and disable some service
+    service: name={{ item }} state=stopped enabled=no
+    with_items:
+      - kdump
+      - nfslock
+      - rpcbind
+      - rpcgssd
+  - name: set autorun with some service
+    command: /sbin/chkconfig --level 2345 {{ item }} on
+    with_items:
+      - mysqld
+      - php-fpm
+
