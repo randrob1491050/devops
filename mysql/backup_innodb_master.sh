@@ -43,12 +43,12 @@ then
     if [ $? = 0 ]
     then
         rm -f t_${bak_filename}.sql d_${bak_filename}.sql
-        echo "mysqldump and package backup files has succeed"
+        echo "backup and package progress has succeed"
     else
-        echo "mysqldump and package backup files has failed"
+        echo "package progress has failed"
     fi
 else
-    echo "mysqldump and package backup files has failed"
+    echo "backup progress has failed"
 fi
 
 echo "Backup Stop Time:`date`"
