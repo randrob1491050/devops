@@ -13,7 +13,7 @@ mysqldump_string="/usr/local/mysql/bin/mysqldump -uroot -p${mysql_password}"
 bak_filename=`date '+%Y%m%d%H%M'`
 
 bak_local_dir='/dbbackup'
-ifconfig_eth1=`ifconfig | grep -w -A 1 eth1 | grep 'inet addr' | head -1 | awk -F: '{print $2}' | awk '{print $1}'`
+ifconfig_eth1=`/sbin/ifconfig | grep -w -A 1 eth1 | grep 'inet addr' | head -1 | awk -F: '{print $2}' | awk '{print $1}'`
 
 bak_remote_ip='x.x.x.x'
 bak_remote_dir='/dbbackup/'
