@@ -30,8 +30,8 @@ then
 fi
 
 ### mysqldump t.sql and d.sql
-$mysqldump_string --master-data --single-transaction -d -A >${bak_local_dir}/t_${bak_filename}.sql &
-$mysqldump_string --master-data --single-transaction -t -A >${bak_local_dir}/d_${bak_filename}.sql &
+$mysqldump_string --master-data --single-transaction -d -A >${bak_local_dir}/t_${bak_filename}.sql
+$mysqldump_string --master-data --single-transaction -t -A >${bak_local_dir}/d_${bak_filename}.sql
 
 ### Package and Sync bak.tgz
 if [ $? = 0 ]
