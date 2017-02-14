@@ -1,0 +1,6 @@
+FROM tonnyom/rpi-raspbian:jessie
+MAINTAINER 700ny0m nonexist@no.ne
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
+    apt-get install iproute ntpdate netcat dnsutils file lsof vim build-essential traceroute curl autoconf libtool libssl-dev zlib1g-dev ncdu iftop nethogs iotop -y && \
+    apt-get clean
